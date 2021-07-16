@@ -30,12 +30,13 @@ import com.training.project.repository.ProjectService;
 import com.training.project.util.FileUploadUtil;
 
 
-
+@CrossOrigin(origins = {"http://localhost:3001", "http://localhost:4200"})
 @RestController()
 @RequestMapping("/")
 public class ProjectController {
 	
 	private static String API_URL = "https://random-message.herokuapp.com/random-message";
+	
 	
 	@Autowired
 	private ProjectService service;
