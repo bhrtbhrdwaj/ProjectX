@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.training.project.model.Comment;
 import com.training.project.model.Product;
 import com.training.project.model.ProductForm;
@@ -30,15 +31,13 @@ import com.training.project.repository.ProjectService;
 import com.training.project.util.FileUploadUtil;
 
 
-@CrossOrigin(origins = {"http://localhost:3001", "http://localhost:4200"})
+@CrossOrigin(origins = {"*"})
 @RestController
 @RequestMapping("/")
 public class ProjectController {
 	
 	private static String API_URL = "https://random-message.herokuapp.com/random-message";
 	
-	@GetMapping
-	public String hello() {return "hello";}
 	
 	@Autowired
 	private ProjectService service;
@@ -50,22 +49,34 @@ public class ProjectController {
 	return service.getProducts();
 	}
 	
+	@GetMapping("valid-product-id/{id}")
+	public boolean isValidProduct(@PathVariable int id) {
+		return service.containsProduct(id);
+	}
+	
 	@PostMapping("products")
-	public Product addProduct(ProductForm productForm,
-			@RequestParam("productImage")MultipartFile multipartFile) throws IOException {
-	   System.out.println(productForm + " " + multipartFile);
-		String fileName = StringUtils.cleanPath(multipartFile.getOriginalFilename());
-       Product product = new Product(productForm.getId(), productForm.getName());
-	   product.setImages(fileName);
-        
-       Product pro = service.createProduct(product);
-       service.createFeatures(productForm.getFeatures(), pro);
-       String uploadDir = "product-images/" + pro.getId();
-
-       FileUploadUtil.saveFile(uploadDir, fileName, multipartFile);
+	public Product addProduct(@RequestParam String productJson,
+			@RequestParam MultipartFile productImage) throws IOException {
+	   
+		ObjectMapper toObj = new ObjectMapper();
+		ProductForm productForm = toObj.readValue(productJson, ProductForm.class);
+		System.out.println(productForm + " " + productImage);
+		
+	   
+		  String fileName = StringUtils.cleanPath(productImage.getOriginalFilename());
+		  Product product = new Product(productForm.getId(), productForm.getName());
+		  product.setImages(fileName);
+		  
+		  Product pro = service.createProduct(product);
+		  service.createFeatures(productForm.getFeatures(), pro);
+		  String uploadDir = "product-images/" + pro.getId();
+		  
+		  FileUploadUtil.saveFile(uploadDir, fileName, productImage);
+		 
        
        return pro;
 	}
+	
 
 	
 	@GetMapping(value = "/products/{id}/image",

@@ -22,8 +22,6 @@ import com.zaxxer.hikari.HikariDataSource;
 @SpringBootApplication
 public class ProjectXApplication {
 
-	@Value("${spring.datasource.url}")
-	  private String dbUrl;
 	
 	public static void main(String[] args) {
 		SpringApplication.run(ProjectXApplication.class, args);
@@ -34,13 +32,4 @@ public class ProjectXApplication {
 		return new RestTemplateBuilder().build();
 	}
 	
-	 @Bean
-	  public DataSource dataSource() throws SQLException {
-	    if (dbUrl == null || dbUrl.isEmpty()) {
-	      return new HikariDataSource();
-	    } else {
-	      HikariConfig config = new HikariConfig();
-	      config.setJdbcUrl(dbUrl);
-	      return new HikariDataSource(config);
-	    }}
 }

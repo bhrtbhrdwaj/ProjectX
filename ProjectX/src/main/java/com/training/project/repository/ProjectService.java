@@ -60,4 +60,8 @@ public class ProjectService {
 			this.feature.save(feature);
 		}
 	}
+	
+	public boolean containsProduct(int productId){
+		return product.existsById(productId);
+	}
 }
